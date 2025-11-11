@@ -45,7 +45,7 @@ event AuthorizationRevoked(address indexed grantor, bytes32 indexed nonce);
 
 
 ### Revocation
-Grantor MUST be able to revoke by nonce (or range) off-chain (new signature invalidation list) or on-chain (registry). Executions MUST reject revoked nonces.
+Grantors **MUST** be able to revoke any *unused* `nonce`. Revocation **MUST** be discoverable at execution time via either (a) per-executor `cancel(nonce)` (grantor-only), and/or (b) a shared registry (`isRevoked(grantor, nonce)`). Executors **MUST** reject revoked/canceled nonces.
 
 ### Rationale
 - **bytes32 nonce**: opaque, wallet-owned; works for per-relationship or global schemes.
