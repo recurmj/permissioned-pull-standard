@@ -38,6 +38,8 @@ bytes32 nonce
 
 ### Events (RECOMMENDED from registries/wallets)
 
+Names are illustrative; implementations MAY use equivalent event names (e.g., `Revoked`, `RevokedMany`).
+
 ~~~
 event AuthorizationGranted(address indexed grantor, address indexed grantee, address indexed token, bytes32 nonce);
 event AuthorizationRevoked(address indexed grantor, bytes32 indexed nonce);
