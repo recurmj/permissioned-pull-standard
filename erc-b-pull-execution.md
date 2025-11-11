@@ -23,31 +23,31 @@ interface IERCBPullExecutor {
     bytes32 nonce;
   }
 
-  /// EIP-712
+  // Views
   function domainSeparator() external view returns (bytes32);
-
-  /// Execute a single pull.
-  function pull(
-    uint256 amount,
-    Authorization calldata auth,
-    bytes calldata signature
-  ) external;
-
-  /// View whether a nonce is consumed/revoked for a grantor.
   function isNonceUsed(address grantor, bytes32 nonce) external view returns (bool);
+  function isNonceCanceled(address grantor, bytes32 nonce) external view returns (bool);
 
-  /// Emitted on success.
-  event PullExecuted(address indexed grantor, address indexed grantee, address indexed token, uint256 amount, bytes32 authHash);
+  // Mutations
+  function pull(uint256 amount, Authorization calldata auth, bytes calldata signature) external;
+  function cancel(bytes32 nonce) external; // grantor-only local revoke
+
+  // Events
+  event PullExecuted(address indexed grantor, address indexed grantee, address indexed token, uint256 amount, bytes32 structHash);
   event NonceUsed(address indexed grantor, bytes32 indexed nonce);
+  event NonceCanceled(address indexed grantor, bytes32 indexed nonce);
 
-  /// Canonical errors
+  // Errors
   error BadSignature();
   error NotYetValid();
   error Expired();
   error OverCap();
   error NonceAlreadyUsed();
+  error Revoked();
   error WrongGrantee();
-  error WrongToken();
+  error ZeroAddress();
+  error ZeroAmount();
+  error TransferFailed();
 }
 ~~~
 
@@ -61,15 +61,16 @@ An implementation **MUST:**
 
 3. `msg.sender == auth.grantee`, else **revert** `WrongGrantee()`.
 
-4. `block.timestamp >= validAfter` (else `NotYetValid()`), `< validBefore` (else `Expired()`).
+4. Enforce time window (`validAfter ≤ now < validBefore`) → `NotYetValid()` / `Expired()`.
 
-5. `amount <= maxPerPull` (else `OverCap()`).
+5. Enforce cap (`amount ≤ maxPerPull`) → `OverCap()`.
+6. Revocation: if `isNonceCanceled(grantor, nonce)` **or** (if configured) `registry.isRevoked(grantor, nonce)` → `Revoked()`.
 
-6. `!isNonceUsed(grantor, nonce)` (else `NonceAlreadyUsed()`); then **mark used** and emit `NonceUsed`.
+7. Ensure `!isNonceUsed(grantor, nonce)`; then **mark used** and emit `NonceUsed`.
 
-7. Transfer `amount` of `auth.token` **from grantor to grantee** (implementation-specific: allowance, vault, or AA policy).
+8. Transfer `amount` of `auth.token` from grantor to grantee; **revert** `TransferFailed()` on failure.
 
-8. Emit `PullExecuted(grantor, grantee, token, amount, authHash) where authHash = keccak256(abi.encode(auth))` including typehash.
+9. Emit `PullExecuted(grantor, grantee, token, amount, structHash)`.
 
 ## Domain separation
 
@@ -90,3 +91,4 @@ Implementations MAY support:
 - Token transfers MUST use safe patterns and reentrancy guards.
 
 - Consider chain forks: windowed validity + replay maps help safety.
+- Signatures MUST enforce low-s and `v ∈ {27,28}` to prevent malleability.
