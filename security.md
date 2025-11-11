@@ -1,4 +1,4 @@
-**Author:** Mats Julner (“Recur Labs”)  
+
 
 - **Domain binding**: signatures are per-executor via `domainSeparator()`.
 - **Replay**: single-use nonce; MUST be consumed before external calls.
