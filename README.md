@@ -1,5 +1,5 @@
 # Recur Permissioned-Pull Standard (RIP-001 → ERC-A / ERC-B)
-**Author:** Mats Julner (Recur Labs)  
+**Author:** Mats Julner ("Recur Labs")  
 
 This repo contains the split specs:
 - **ERC-A — Permissioned Authorization (PPO)**: the EIP-712 consent object.
