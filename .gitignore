@@ -1,0 +1,35 @@
+# ---- Foundry / Forge
+out/
+cache/
+broadcast/
+lib/
+artifacts/
+*.json
+*.tsol
+*.tvm
+
+# ---- Node / Yarn (if you add frontend or scripts)
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+.env
+.env.*
+
+# ---- OS / Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+*.swp
+
+# ---- Solidity Coverage / Reports
+coverage/
+coverage.json
+gas-report.json
+
+# ---- Other build systems
+dist/
+build/
+tmp/
