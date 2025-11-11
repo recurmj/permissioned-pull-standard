@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
+// Author: Mats Julner (@recurmj · Recur Labs)
+
 pragma solidity ^0.8.20;
 
 import {IPPORegistry} from "./interfaces/IPPORegistry.sol";
